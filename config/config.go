@@ -8,6 +8,7 @@ import (
 type Config struct {
 	HttpPort            string
 	UserServiceGrpcPort string
+	UserServiceHost     string
 }
 
 func Load(path string) Config {
@@ -18,6 +19,7 @@ func Load(path string) Config {
 
 	cfg := Config{
 		HttpPort:            conf.GetString("HTTP_PORT"),
+		UserServiceHost:     conf.GetString("USER_SERVICE_HOST"),
 		UserServiceGrpcPort: conf.GetString("USER_SERVICE_GRPC_PORT"),
 	}
 
