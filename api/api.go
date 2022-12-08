@@ -15,7 +15,7 @@ import (
 
 type RouterOptions struct {
 	Cfg        *config.Config
-	GrpcClient *grpcPkg.GrpcClient
+	GrpcClient grpcPkg.GrpcClientI
 }
 
 // @title           Swagger for blog api
@@ -37,7 +37,14 @@ func New(opt *RouterOptions) *gin.Engine {
 
 	apiV1 := router.Group("/v1")
 
+	apiV1.POST("/auth/register", handlerV1.Register)
+
 	apiV1.POST("/users", handlerV1.CreateUser)
+	apiV1.GET("/users/:id", handlerV1.GetUser)
+	apiV1.PUT("/users/:id", handlerV1.UpdateUser)
+	apiV1.GET("/users", handlerV1.GetAllUsers)
+	apiV1.DELETE("/users/:id", handlerV1.DeleteUser)
+	apiV1.GET("/users/email/:email", handlerV1.GetUserByEmail)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
