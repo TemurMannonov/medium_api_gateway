@@ -9,6 +9,8 @@ type Config struct {
 	HttpPort            string
 	UserServiceGrpcPort string
 	UserServiceHost     string
+	PostServiceGrpcPort string
+	PostServiceHost     string
 }
 
 func Load(path string) Config {
@@ -21,6 +23,8 @@ func Load(path string) Config {
 		HttpPort:            conf.GetString("HTTP_PORT"),
 		UserServiceHost:     conf.GetString("USER_SERVICE_HOST"),
 		UserServiceGrpcPort: conf.GetString("USER_SERVICE_GRPC_PORT"),
+		PostServiceHost:     conf.GetString("POST_SERVICE_HOST"),
+		PostServiceGrpcPort: conf.GetString("POST_SERVICE_GRPC_PORT"),
 	}
 
 	return cfg
