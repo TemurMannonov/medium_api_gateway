@@ -52,3 +52,43 @@ func (h *handlerV1) Register(c *gin.Context) {
 		Message: "success",
 	})
 }
+
+// @Router /auth/verify [post]
+// @Summary Verify user
+// @Description Verify user
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param data body models.VerifyRequest true "Data"
+// @Success 200 {object} models.AuthResponse
+// @Failure 500 {object} models.ErrorResponse
+func (h *handlerV1) Verify(c *gin.Context) {
+	var (
+		req models.VerifyRequest
+	)
+
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	result, err := h.grpcClient.AuthService().Verify(context.Background(), &pbu.VerifyRegisterRequest{
+		Email: req.Email,
+		Code:  req.Code,
+	})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	c.JSON(http.StatusCreated, models.AuthResponse{
+		ID:          result.Id,
+		FirstName:   result.FirstName,
+		LastName:    result.LastName,
+		Email:       result.Email,
+		Type:        result.Type,
+		CreatedAt:   result.CreatedAt,
+		AccessToken: result.AccessToken,
+	})
+}
