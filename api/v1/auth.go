@@ -2,11 +2,13 @@ package v1
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/TemurMannonov/medium_api_gateway/api/models"
 	pbu "github.com/TemurMannonov/medium_api_gateway/genproto/user_service"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc/status"
 )
 
 // @Router /auth/register [post]
@@ -78,8 +80,18 @@ func (h *handlerV1) Verify(c *gin.Context) {
 		Code:  req.Code,
 	})
 	if err != nil {
-		c.JSON(http.StatusBadRequest, errorResponse(err))
-		return
+		s, _ := status.FromError(err)
+		fmt.Println("-", s.Message(), "-")
+		if s.Message() == "incorrect_code" {
+			c.JSON(http.StatusBadRequest, errorResponse(ErrIncorrectCode))
+			return
+		} else if s.Message() == "code_expired" {
+			c.JSON(http.StatusBadRequest, errorResponse(ErrCodeExpired))
+			return
+		} else {
+			c.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
 	}
 
 	c.JSON(http.StatusCreated, models.AuthResponse{

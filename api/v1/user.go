@@ -7,6 +7,8 @@ import (
 
 	"github.com/TemurMannonov/medium_api_gateway/api/models"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	pbu "github.com/TemurMannonov/medium_api_gateway/genproto/user_service"
 )
@@ -43,6 +45,7 @@ func (h *handlerV1) CreateUser(c *gin.Context) {
 		Type:            req.Type,
 	})
 	if err != nil {
+		// status.FromError(err)
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
@@ -79,6 +82,10 @@ func (h *handlerV1) UpdateUser(c *gin.Context) {
 		ProfileImageUrl: req.ProfileImageUrl,
 	})
 	if err != nil {
+		if s, _ := status.FromError(err); s.Code() == codes.NotFound {
+			c.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
@@ -104,6 +111,10 @@ func (h *handlerV1) GetUser(c *gin.Context) {
 
 	resp, err := h.grpcClient.UserService().Get(context.Background(), &pbu.IdRequest{Id: int64(id)})
 	if err != nil {
+		if s, _ := status.FromError(err); s.Code() == codes.NotFound {
+			c.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
@@ -125,6 +136,10 @@ func (h *handlerV1) GetUserByEmail(c *gin.Context) {
 
 	resp, err := h.grpcClient.UserService().GetByEmail(context.Background(), &pbu.GetByEmailRequest{Email: email})
 	if err != nil {
+		if s, _ := status.FromError(err); s.Code() == codes.NotFound {
+			c.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
@@ -208,6 +223,10 @@ func (h *handlerV1) DeleteUser(c *gin.Context) {
 
 	_, err = h.grpcClient.UserService().Delete(context.Background(), &pbu.IdRequest{Id: int64(id)})
 	if err != nil {
+		if s, _ := status.FromError(err); s.Code() == codes.NotFound {
+			c.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
