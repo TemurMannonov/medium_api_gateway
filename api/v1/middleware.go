@@ -14,6 +14,15 @@ const (
 	authorizationPayloadKey = "authorization_payload"
 )
 
+type Payload struct {
+	ID        string `json:"id"`
+	UserID    int64  `json:"user_id"`
+	Email     string `json:"email"`
+	UserType  string `json:"type"`
+	IssuedAt  string `json:"issued_at"`
+	ExpiredAt string `json:"expired_at"`
+}
+
 func (h *handlerV1) AuthMiddleware(c *gin.Context) {
 	accessToken := c.GetHeader(authorizationHeaderKey)
 
@@ -40,15 +49,6 @@ func (h *handlerV1) AuthMiddleware(c *gin.Context) {
 		ExpiredAt: payload.ExpiredAt,
 	})
 	c.Next()
-}
-
-type Payload struct {
-	ID        string `json:"id"`
-	UserID    int64  `json:"user_id"`
-	Email     string `json:"email"`
-	UserType  string `json:"type"`
-	IssuedAt  string `json:"issued_at"`
-	ExpiredAt string `json:"expired_at"`
 }
 
 func (m *handlerV1) GetAuthPayload(ctx *gin.Context) (*Payload, error) {

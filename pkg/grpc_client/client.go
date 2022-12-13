@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/TemurMannonov/medium_api_gateway/config"
+	pbp "github.com/TemurMannonov/medium_api_gateway/genproto/post_service"
 	pbu "github.com/TemurMannonov/medium_api_gateway/genproto/user_service"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -12,6 +13,8 @@ import (
 type GrpcClientI interface {
 	UserService() pbu.UserServiceClient
 	AuthService() pbu.AuthServiceClient
+	PostService() pbp.PostServiceClient
+	CategoryService() pbp.CategoryServiceClient
 }
 
 type GrpcClient struct {
@@ -29,11 +32,22 @@ func New(cfg config.Config) (GrpcClientI, error) {
 			cfg.UserServiceHost, cfg.UserServiceGrpcPort, err)
 	}
 
+	connPostService, err := grpc.Dial(
+		fmt.Sprintf("%s%s", cfg.PostServiceHost, cfg.PostServiceGrpcPort),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("post service dial host: %s port:%s err: %v",
+			cfg.PostServiceHost, cfg.PostServiceGrpcPort, err)
+	}
+
 	return &GrpcClient{
 		cfg: cfg,
 		connections: map[string]interface{}{
-			"user_service": pbu.NewUserServiceClient(connUserService),
-			"auth_service": pbu.NewAuthServiceClient(connUserService),
+			"user_service":     pbu.NewUserServiceClient(connUserService),
+			"auth_service":     pbu.NewAuthServiceClient(connUserService),
+			"post_service":     pbp.NewPostServiceClient(connPostService),
+			"category_service": pbp.NewCategoryServiceClient(connPostService),
 		},
 	}, nil
 }
@@ -44,4 +58,12 @@ func (g *GrpcClient) UserService() pbu.UserServiceClient {
 
 func (g *GrpcClient) AuthService() pbu.AuthServiceClient {
 	return g.connections["auth_service"].(pbu.AuthServiceClient)
+}
+
+func (g *GrpcClient) PostService() pbp.PostServiceClient {
+	return g.connections["post_service"].(pbp.PostServiceClient)
+}
+
+func (g *GrpcClient) CategoryService() pbp.CategoryServiceClient {
+	return g.connections["category_service"].(pbp.CategoryServiceClient)
 }
