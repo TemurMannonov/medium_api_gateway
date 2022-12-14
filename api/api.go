@@ -4,6 +4,7 @@ import (
 	v1 "github.com/TemurMannonov/medium_api_gateway/api/v1"
 	"github.com/TemurMannonov/medium_api_gateway/config"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 
 	swaggerFiles "github.com/swaggo/files"     // swagger embed files
 	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
@@ -16,6 +17,7 @@ import (
 type RouterOptions struct {
 	Cfg        *config.Config
 	GrpcClient grpcPkg.GrpcClientI
+	Logger     *logrus.Logger
 }
 
 // @title           Swagger for blog api
@@ -33,6 +35,7 @@ func New(opt *RouterOptions) *gin.Engine {
 	handlerV1 := v1.New(&v1.HandlerV1Options{
 		Cfg:        opt.Cfg,
 		GrpcClient: opt.GrpcClient,
+		Logger:     opt.Logger,
 	})
 
 	apiV1 := router.Group("/v1")

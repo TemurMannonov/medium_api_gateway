@@ -45,7 +45,7 @@ func (h *handlerV1) CreateUser(c *gin.Context) {
 		Type:            req.Type,
 	})
 	if err != nil {
-		// status.FromError(err)
+		h.logger.WithError(err).Error("failed to create user")
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
@@ -73,7 +73,7 @@ func (h *handlerV1) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	user, err := h.grpcClient.UserService().Create(context.Background(), &pbu.User{
+	user, err := h.grpcClient.UserService().Update(context.Background(), &pbu.User{
 		FirstName:       req.FirstName,
 		LastName:        req.LastName,
 		PhoneNumber:     req.PhoneNumber,
@@ -82,6 +82,7 @@ func (h *handlerV1) UpdateUser(c *gin.Context) {
 		ProfileImageUrl: req.ProfileImageUrl,
 	})
 	if err != nil {
+		h.logger.WithError(err).Error("failed to update user")
 		if s, _ := status.FromError(err); s.Code() == codes.NotFound {
 			c.JSON(http.StatusNotFound, errorResponse(err))
 			return
@@ -103,6 +104,7 @@ func (h *handlerV1) UpdateUser(c *gin.Context) {
 // @Success 200 {object} models.User
 // @Failure 500 {object} models.ErrorResponse
 func (h *handlerV1) GetUser(c *gin.Context) {
+	h.logger.Info("get user")
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, errorResponse(err))
@@ -111,6 +113,7 @@ func (h *handlerV1) GetUser(c *gin.Context) {
 
 	resp, err := h.grpcClient.UserService().Get(context.Background(), &pbu.IdRequest{Id: int64(id)})
 	if err != nil {
+		h.logger.WithError(err).Error("failed to get user")
 		if s, _ := status.FromError(err); s.Code() == codes.NotFound {
 			c.JSON(http.StatusNotFound, errorResponse(err))
 			return
@@ -136,6 +139,7 @@ func (h *handlerV1) GetUserByEmail(c *gin.Context) {
 
 	resp, err := h.grpcClient.UserService().GetByEmail(context.Background(), &pbu.GetByEmailRequest{Email: email})
 	if err != nil {
+		h.logger.WithError(err).Error("failed to get user by email")
 		if s, _ := status.FromError(err); s.Code() == codes.NotFound {
 			c.JSON(http.StatusNotFound, errorResponse(err))
 			return
@@ -184,6 +188,7 @@ func (h *handlerV1) GetAllUsers(c *gin.Context) {
 		Search: req.Search,
 	})
 	if err != nil {
+		h.logger.WithError(err).Error("failed to get all users")
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
