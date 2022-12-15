@@ -2,12 +2,12 @@ package v1
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/TemurMannonov/medium_api_gateway/api/models"
 	pbu "github.com/TemurMannonov/medium_api_gateway/genproto/user_service"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
@@ -81,7 +81,6 @@ func (h *handlerV1) Verify(c *gin.Context) {
 	})
 	if err != nil {
 		s, _ := status.FromError(err)
-		fmt.Println("-", s.Message(), "-")
 		if s.Message() == "incorrect_code" {
 			c.JSON(http.StatusBadRequest, errorResponse(ErrIncorrectCode))
 			return
@@ -103,4 +102,53 @@ func (h *handlerV1) Verify(c *gin.Context) {
 		CreatedAt:   result.CreatedAt,
 		AccessToken: result.AccessToken,
 	})
+}
+
+// @Router /auth/login [post]
+// @Summary Login User
+// @Description Login User
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param login body models.LoginRequest true "Login"
+// @Success 200 {object} models.AuthResponse
+// @Failure 500 {object} models.ErrorResponse
+func (h *handlerV1) Login(c *gin.Context) {
+	var (
+		req models.LoginRequest
+	)
+
+	err := c.ShouldBindJSON(&req)
+	if err != nil {
+		h.logger.WithError(err).Error("failed to bind JSON in login")
+		c.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	user, err := h.grpcClient.AuthService().Login(context.Background(), &pbu.LoginRequest{
+		Email:    req.Email,
+		Password: req.Password,
+	})
+	if err != nil {
+		h.logger.WithError(err).Error("failed to login")
+		s, _ := status.FromError(err)
+		if s.Code() == codes.NotFound || s.Message() == "incorrect_password" {
+			c.JSON(http.StatusBadRequest, errorResponse(ErrWrongEmailOrPass))
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	c.JSON(http.StatusOK, models.AuthResponse{
+		ID:          user.Id,
+		FirstName:   user.FirstName,
+		LastName:    user.LastName,
+		Email:       user.Email,
+		Type:        user.Type,
+		CreatedAt:   user.CreatedAt,
+		AccessToken: user.AccessToken,
+	})
+
 }

@@ -17,7 +17,7 @@ var (
 	ErrUserNotVerified  = errors.New("user not verified")
 	ErrIncorrectCode    = errors.New("incorrect verification code")
 	ErrCodeExpired      = errors.New("verification code has been expired")
-	ErrForbidden        = errors.New("forbidden")
+	ErrNotAllowed       = errors.New("method not allowed")
 )
 
 type handlerV1 struct {

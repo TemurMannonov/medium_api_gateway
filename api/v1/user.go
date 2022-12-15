@@ -13,6 +13,7 @@ import (
 	pbu "github.com/TemurMannonov/medium_api_gateway/genproto/user_service"
 )
 
+// @Security ApiKeyAuth
 // @Router /users [post]
 // @Summary Create a user
 // @Description Create a user
@@ -53,6 +54,7 @@ func (h *handlerV1) CreateUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, parseUserModel(user))
 }
 
+// @Security ApiKeyAuth
 // @Router /users [put]
 // @Summary Update a user
 // @Description Update a user
@@ -210,6 +212,7 @@ func getUsersResponse(data *pbu.GetAllUsersResponse) *models.GetAllUsersResponse
 	return &response
 }
 
+// @Security ApiKeyAuth
 // @Router /users/{id} [delete]
 // @Summary Delete user
 // @Description Delete user

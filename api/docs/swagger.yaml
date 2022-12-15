@@ -100,6 +100,18 @@ definitions:
       count:
         type: integer
     type: object
+  models.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        maxLength: 16
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
   models.Post:
     properties:
       category_id:
@@ -222,6 +234,32 @@ info:
   title: Swagger for blog api
   version: "1.0"
 paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login User
+      parameters:
+      - description: Login
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.AuthResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Login User
+      tags:
+      - auth
   /auth/register:
     post:
       consumes:
@@ -297,6 +335,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a category
       tags:
       - category
@@ -383,6 +423,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Create a user
       tags:
       - user
@@ -408,6 +450,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update a user
       tags:
       - user
@@ -433,6 +477,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Delete user
       tags:
       - user

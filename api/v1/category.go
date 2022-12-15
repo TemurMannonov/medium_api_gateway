@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Security ApiKeyAuth
 // @Router /categories [post]
 // @Summary Create a category
 // @Description Create a category
