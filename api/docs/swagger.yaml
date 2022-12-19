@@ -368,6 +368,39 @@ paths:
       summary: Create a post
       tags:
       - post
+  /posts/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update post
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: post
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreatePostRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Post'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update post
+      tags:
+      - post
   /users:
     get:
       consumes:

@@ -31,6 +31,11 @@ func (h *handlerV1) Register(c *gin.Context) {
 		return
 	}
 
+	if !validatePassword(req.Password) {
+		c.JSON(http.StatusBadRequest, errorResponse(ErrWeakPassword))
+		return
+	}
+
 	user, _ := h.grpcClient.UserService().GetByEmail(context.Background(), &pbu.GetByEmailRequest{
 		Email: req.Email,
 	})
@@ -53,6 +58,23 @@ func (h *handlerV1) Register(c *gin.Context) {
 	c.JSON(http.StatusOK, models.ResponseOK{
 		Message: "success",
 	})
+}
+
+func validatePassword(password string) bool {
+	var capitalLetter, smallLetter, number, symbol bool
+
+	for i := 0; i < len(password); i++ {
+		if password[i] >= 65 && password[i] <= 90 {
+			capitalLetter = true
+		} else if password[i] >= 97 && password[i] <= 122 {
+			smallLetter = true
+		} else if password[i] >= 48 && password[i] <= 57 {
+			number = true
+		} else {
+			symbol = true
+		}
+	}
+	return capitalLetter && smallLetter && number && symbol
 }
 
 // @Router /auth/verify [post]

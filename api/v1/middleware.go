@@ -68,9 +68,9 @@ func (m *handlerV1) GetAuthPayload(ctx *gin.Context) (*Payload, error) {
 		return nil, errors.New("")
 	}
 
-	payload, ok := i.(*Payload)
+	payload, ok := i.(Payload)
 	if !ok {
 		return nil, errors.New("unknown user")
 	}
-	return payload, nil
+	return &payload, nil
 }

@@ -18,6 +18,7 @@ var (
 	ErrIncorrectCode    = errors.New("incorrect verification code")
 	ErrCodeExpired      = errors.New("verification code has been expired")
 	ErrNotAllowed       = errors.New("method not allowed")
+	ErrWeakPassword     = errors.New("password must contain at least one small letter, one capital letter, one number, one symbol")
 )
 
 type handlerV1 struct {

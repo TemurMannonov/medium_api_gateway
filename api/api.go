@@ -52,6 +52,7 @@ func New(opt *RouterOptions) *gin.Engine {
 	apiV1.GET("/users/email/:email", handlerV1.GetUserByEmail)
 
 	apiV1.POST("/posts", handlerV1.AuthMiddleware("posts", "create"), handlerV1.CreatePost)
+	apiV1.PUT("/posts/:id", handlerV1.AuthMiddleware("posts", "update"), handlerV1.UpdatePost)
 
 	apiV1.POST("/categories", handlerV1.AuthMiddleware("categories", "create"), handlerV1.CreateCategory)
 
